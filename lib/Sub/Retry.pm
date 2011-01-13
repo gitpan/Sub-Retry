@@ -2,7 +2,7 @@ package Sub::Retry;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 use parent qw/Exporter/;
 use Time::HiRes qw/sleep/;
 
@@ -52,7 +52,9 @@ Sub::Retry - retry $n times
 
     my $ua = LWP::UserAgent->new();
     my $res = retry 3, 1, sub {
-        $ua->post('http://example.com/api/foo/bar');
+        my $res = $ua->post('http://example.com/api/foo/bar');
+        $res->is_success or die;
+        $res;
     };
 
 =head1 DESCRIPTION
