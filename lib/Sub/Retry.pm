@@ -2,38 +2,39 @@ package Sub::Retry;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 use parent qw/Exporter/;
 use Time::HiRes qw/sleep/;
 
 our @EXPORT = qw/retry/;
 
 sub retry {
-    my ( $times, $delay, $code ) = @_;
+    my ( $times, $delay, $code, $retry_if ) = @_;
 
     my $err;
+    $retry_if ||= sub { $err = $@ };
   LOOP: for ( 1 .. $times ) {
         if (wantarray) {
             my @ret = eval { $code->() };
-            unless ($err = $@) {
+            unless ($retry_if->(@ret)) {
                 return @ret;
             }
         }
         elsif (not defined wantarray) {
             eval { $code->() };
-            unless ($err = $@) {
+            unless ($retry_if->()) {
                 return;
             }
         }
         else {
             my $ret = eval { $code->() };
-            unless ($err = $@) {
+            unless ($retry_if->($ret)) {
                 return $ret;
             }
         }
         sleep $delay;
     }
-    die $err;
+    die $err if $err;
 }
 
 1;
@@ -52,24 +53,35 @@ Sub::Retry - retry $n times
 
     my $ua = LWP::UserAgent->new();
     my $res = retry 3, 1, sub {
-        my $res = $ua->post('http://example.com/api/foo/bar');
-        $res->is_success or die;
-        $res;
+        $ua->post('http://example.com/api/foo/bar');
     };
 
 =head1 DESCRIPTION
 
-Sub::Retry provides the fuction named 'retry'.
+Sub::Retry provides the function named 'retry'.
 
 =head1 FUNCTIONS
 
 =over 4
 
-=item retry($n_times, $delay, \&code)
+=item retry($n_times, $delay, \&code [, \&retry_if])
 
 This function calls C<< \&code >>. If the code throws exception, this function retry C<< $n_times >> after C<< $delay >> seconds.
 
 Return value of this function is the return value of C<< \&code >>. This function cares L<wantarray>.
+
+You can also customize the retry condition. In that case C<< \&retry_if >> specify coderef. The coderef arguments is return value the same. (Default: retry condition is throws exception)
+
+    use Sub::Retry;
+    use Cache::Memcached::Fast;
+
+    my $cache = Cache::Memcadelay ched::Fast->new(...);
+    my $res = retry 3, 1, sub {
+        $cache->get('foo');
+    } sub {
+        my $res = shift;
+        defined $res ? 0 : 1;
+    };
 
 =back
 
