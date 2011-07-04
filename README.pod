@@ -2,7 +2,7 @@ package Sub::Retry;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 use parent qw/Exporter/;
 use Time::HiRes qw/sleep/;
 
@@ -75,7 +75,7 @@ You can also customize the retry condition. In that case C<< \&retry_if >> speci
     use Sub::Retry;
     use Cache::Memcached::Fast;
 
-    my $cache = Cache::Memcadelay ched::Fast->new(...);
+    my $cache = Cache::Memcached::Fast->new(...);
     my $res = retry 3, 1, sub {
         $cache->get('foo');
     } sub {
