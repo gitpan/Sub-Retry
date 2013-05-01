@@ -3,12 +3,14 @@ abstract: 'retry $n times'
 author:
   - 'Tokuhiro Matsuno <tokuhirom AAJKLFJEF GMAIL COM>'
 build_requires:
-  ExtUtils::MakeMaker: 6.42
+  ExtUtils::MakeMaker: 6.59
   Test::More: 0.96
 configure_requires:
-  ExtUtils::MakeMaker: 6.42
-distribution_type: module
-generated_by: 'Module::Install version 1.01'
+  CPAN::Meta: 0
+  CPAN::Meta::Prereqs: 0
+  Module::Build: 0.38
+dynamic_config: 0
+generated_by: 'Minilla/v0.2.0, CPAN::Meta::Converter version 2.130880'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -16,12 +18,26 @@ meta-spec:
 name: Sub-Retry
 no_index:
   directory:
-    - inc
     - t
     - xt
+    - inc
+    - share
+    - eg
+    - examples
+    - author
+provides:
+  Sub::Retry:
+    file: lib/Sub/Retry.pm
+    version: 0.05
 requires:
   parent: 0
-  perl: 5.8.1
+  perl: 5.008001
 resources:
-  license: http://dev.perl.org/licenses/
-version: 0.04
+  bugtracker: https://github.com/tokuhirom/Sub-Retry/issues
+  homepage: https://github.com/tokuhirom/Sub-Retry
+  repository: git://github.com/tokuhirom/Sub-Retry.git
+version: 0.05
+x_contributors:
+  - 'HIROSE Masaaki <hirose31@gmail.com>'
+  - 'Tokuhiro Matsuno <tokuhirom@gmail.com>'
+  - 'xaicron <xaicron@gmail.com>'
