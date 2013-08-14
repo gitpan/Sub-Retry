@@ -2,7 +2,7 @@ package Sub::Retry;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 use parent qw/Exporter/;
 use Time::HiRes qw/sleep/;
 
@@ -13,21 +13,23 @@ sub retry {
 
     my $err;
     $retry_if ||= sub { $err = $@ };
+    my $n = 0;
     while ( $times-- > 0 ) {
+        $n++;
         if (wantarray) {
-            my @ret = eval { $code->() };
+            my @ret = eval { $code->($n) };
             unless ($retry_if->(@ret)) {
                 return @ret;
             }
         }
         elsif (not defined wantarray) {
-            eval { $code->() };
+            eval { $code->($n) };
             unless ($retry_if->()) {
                 return;
             }
         }
         else {
-            my $ret = eval { $code->() };
+            my $ret = eval { $code->($n) };
             unless ($retry_if->($ret)) {
                 return $ret;
             }
@@ -53,6 +55,7 @@ Sub::Retry - retry $n times
 
     my $ua = LWP::UserAgent->new();
     my $res = retry 3, 1, sub {
+        my $n = shift;
         $ua->post('http://example.com/api/foo/bar');
     };
 
@@ -70,7 +73,7 @@ This function calls C<< \&code >>. If the code throws exception, this function r
 
 Return value of this function is the return value of C<< \&code >>. This function cares L<wantarray>.
 
-You can also customize the retry condition. In that case C<< \&retry_if >> specify coderef. The coderef arguments is return value the same. (Default: retry condition is throws exception)
+You can also customize the retry condition. In that case C<< \&retry_if >> specify CodeRef. The CodeRef arguments is return value the same. (Default: retry condition is throws exception)
 
     use Sub::Retry;
     use Cache::Memcached::Fast;
